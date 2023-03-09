@@ -223,24 +223,44 @@ output "intra_subnets_ipv6_cidr_blocks" {
   value       = compact(aws_subnet.intra[*].ipv6_cidr_block)
 }
 
-output "eks_subnets" {
+output "eks_worker_subnets" {
   description = "List of IDs of eks subnets"
-  value       = aws_subnet.eks[*].id
+  value       = aws_subnet.eks_worker[*].id
 }
 
-output "eks_subnet_arns" {
+output "eks_worker_subnet_arns" {
   description = "List of ARNs of eks subnets"
-  value       = aws_subnet.eks[*].arn
+  value       = aws_subnet.eks_worker[*].arn
 }
 
-output "eks_subnets_cidr_blocks" {
+output "eks_worker_subnets_cidr_blocks" {
   description = "List of cidr_blocks of eks subnets"
-  value       = compact(aws_subnet.eks[*].cidr_block)
+  value       = compact(aws_subnet.eks_worker[*].cidr_block)
 }
 
-output "eks_subnets_ipv6_cidr_blocks" {
+output "eks_worker_subnets_ipv6_cidr_blocks" {
   description = "List of IPv6 cidr_blocks of eks subnets in an IPv6 enabled VPC"
-  value       = compact(aws_subnet.eks[*].ipv6_cidr_block)
+  value       = compact(aws_subnet.eks_worker[*].ipv6_cidr_block)
+}
+
+output "eks_control_plane_subnets" {
+  description = "List of IDs of eks subnets"
+  value       = aws_subnet.eks_control_plane[*].id
+}
+
+output "eks_control_plane_subnet_arns" {
+  description = "List of ARNs of eks subnets"
+  value       = aws_subnet.eks_control_plane[*].arn
+}
+
+output "eks_control_plane_subnets_cidr_blocks" {
+  description = "List of cidr_blocks of eks subnets"
+  value       = compact(aws_subnet.eks_control_plane[*].cidr_block)
+}
+
+output "eks_control_plane_subnets_ipv6_cidr_blocks" {
+  description = "List of IPv6 cidr_blocks of eks subnets in an IPv6 enabled VPC"
+  value       = compact(aws_subnet.eks_control_plane[*].ipv6_cidr_block)
 }
 
 output "elasticache_subnet_group" {
@@ -283,9 +303,14 @@ output "intra_route_table_ids" {
   value       = aws_route_table.intra[*].id
 }
 
-output "eks_route_table_ids" {
+output "eks_worker_route_table_ids" {
   description = "List of IDs of eks route tables"
-  value       = aws_route_table.eks[*].id
+  value       = aws_route_table.eks_worker[*].id
+}
+
+output "eks_control_plane_route_table_ids" {
+  description = "List of IDs of eks route tables"
+  value       = aws_route_table.eks_control_plane[*].id
 }
 
 output "public_internet_gateway_route_id" {
@@ -348,9 +373,14 @@ output "elasticache_route_table_association_ids" {
   value       = aws_route_table_association.elasticache[*].id
 }
 
-output "eks_route_table_association_ids" {
+output "eks_worker_route_table_association_ids" {
   description = "List of IDs of the eks route table association"
-  value       = aws_route_table_association.eks[*].id
+  value       = aws_route_table_association.eks_worker[*].id
+}
+
+output "eks_control_plane_route_table_association_ids" {
+  description = "List of IDs of the eks route table association"
+  value       = aws_route_table_association.eks_control_plane[*].id
 }
 
 output "public_route_table_association_ids" {
@@ -498,14 +528,24 @@ output "outpost_network_acl_arn" {
   value       = try(aws_network_acl.outpost[0].arn, "")
 }
 
-output "eks_network_acl_id" {
+output "eks_worker_network_acl_id" {
   description = "ID of the eks network ACL"
-  value       = try(aws_network_acl.eks[0].id, "")
+  value       = try(aws_network_acl.eks_worker[0].id, "")
 }
 
-output "eks_network_acl_arn" {
+output "eks_control_plane_network_acl_id" {
+  description = "ID of the eks network ACL"
+  value       = try(aws_network_acl.eks_control_plane[0].id, "")
+}
+
+output "eks_worker_network_acl_arn" {
   description = "ARN of the intra network ACL"
-  value       = try(aws_network_acl.eks[0].arn, "")
+  value       = try(aws_network_acl.eks_worker[0].arn, "")
+}
+
+output "eks_control_plane_network_acl_arn" {
+  description = "ARN of the intra network ACL"
+  value       = try(aws_network_acl.eks_control_plane[0].arn, "")
 }
 
 output "database_network_acl_id" {
