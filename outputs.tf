@@ -223,6 +223,26 @@ output "intra_subnets_ipv6_cidr_blocks" {
   value       = compact(aws_subnet.intra[*].ipv6_cidr_block)
 }
 
+output "eks_subnets" {
+  description = "List of IDs of eks subnets"
+  value       = aws_subnet.eks[*].id
+}
+
+output "eks_subnet_arns" {
+  description = "List of ARNs of eks subnets"
+  value       = aws_subnet.eks[*].arn
+}
+
+output "eks_subnets_cidr_blocks" {
+  description = "List of cidr_blocks of eks subnets"
+  value       = compact(aws_subnet.eks[*].cidr_block)
+}
+
+output "eks_subnets_ipv6_cidr_blocks" {
+  description = "List of IPv6 cidr_blocks of eks subnets in an IPv6 enabled VPC"
+  value       = compact(aws_subnet.eks[*].ipv6_cidr_block)
+}
+
 output "elasticache_subnet_group" {
   description = "ID of elasticache subnet group"
   value       = try(aws_elasticache_subnet_group.elasticache[0].id, "")
@@ -261,6 +281,11 @@ output "elasticache_route_table_ids" {
 output "intra_route_table_ids" {
   description = "List of IDs of intra route tables"
   value       = aws_route_table.intra[*].id
+}
+
+output "eks_route_table_ids" {
+  description = "List of IDs of eks route tables"
+  value       = aws_route_table.eks[*].id
 }
 
 output "public_internet_gateway_route_id" {
@@ -323,9 +348,9 @@ output "elasticache_route_table_association_ids" {
   value       = aws_route_table_association.elasticache[*].id
 }
 
-output "intra_route_table_association_ids" {
-  description = "List of IDs of the intra route table association"
-  value       = aws_route_table_association.intra[*].id
+output "eks_route_table_association_ids" {
+  description = "List of IDs of the eks route table association"
+  value       = aws_route_table_association.eks[*].id
 }
 
 output "public_route_table_association_ids" {
@@ -473,14 +498,14 @@ output "outpost_network_acl_arn" {
   value       = try(aws_network_acl.outpost[0].arn, "")
 }
 
-output "intra_network_acl_id" {
-  description = "ID of the intra network ACL"
-  value       = try(aws_network_acl.intra[0].id, "")
+output "eks_network_acl_id" {
+  description = "ID of the eks network ACL"
+  value       = try(aws_network_acl.eks[0].id, "")
 }
 
-output "intra_network_acl_arn" {
+output "eks_network_acl_arn" {
   description = "ARN of the intra network ACL"
-  value       = try(aws_network_acl.intra[0].arn, "")
+  value       = try(aws_network_acl.eks[0].arn, "")
 }
 
 output "database_network_acl_id" {

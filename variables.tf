@@ -64,6 +64,12 @@ variable "intra_subnet_ipv6_prefixes" {
   default     = []
 }
 
+variable "eks_subnet_ipv6_prefixes" {
+  description = "Assigns IPv6 eks subnet id based on the Amazon provided /56 prefix base 10 integer (0-256). Must be of equal length to the corresponding IPv4 subnet list"
+  type        = list(string)
+  default     = []
+}
+
 variable "assign_ipv6_address_on_creation" {
   description = "Assign IPv6 address on subnet, must be disabled to change IPv6 CIDRs. This is the IPv6 equivalent of map_public_ip_on_launch"
   type        = bool
@@ -111,6 +117,15 @@ variable "intra_subnet_assign_ipv6_address_on_creation" {
   type        = bool
   default     = null
 }
+
+##### CUSTOM #####
+variable "eks_subnet_assign_ipv6_address_on_creation" {
+  description = "Assign IPv6 address on eks subnet, must be disabled to change IPv6 CIDRs. This is the IPv6 equivalent of map_public_ip_on_launch"
+  type        = bool
+  default     = null
+}
+
+##################
 
 variable "secondary_cidr_blocks" {
   description = "List of secondary CIDR blocks to associate with the VPC to extend the IP Address pool"
@@ -160,6 +175,15 @@ variable "intra_subnet_names" {
   default     = []
 }
 
+##### CUSTOM #####
+variable "eks_subnet_names" {
+  description = "Explicit values to use in the Name tag on eks subnets. If empty, Name tags are generated."
+  type        = list(string)
+  default     = []
+}
+
+##################
+
 variable "database_subnet_names" {
   description = "Explicit values to use in the Name tag on database subnets. If empty, Name tags are generated."
   type        = list(string)
@@ -189,6 +213,15 @@ variable "intra_subnet_suffix" {
   type        = string
   default     = "intra"
 }
+
+##### CUSTOM #####
+variable "eks_subnet_suffix" {
+  description = "Suffix to append to eks subnets name"
+  type        = string
+  default     = "eks"
+}
+
+##################
 
 variable "database_subnet_suffix" {
   description = "Suffix to append to database subnets name"
@@ -249,6 +282,15 @@ variable "intra_subnets" {
   type        = list(string)
   default     = []
 }
+
+##### CUSTOM #####
+variable "eks_subnets" {
+  description = "A list of eks subnets"
+  type        = list(string)
+  default     = []
+}
+
+##################
 
 variable "create_database_subnet_route_table" {
   description = "Controls if separate route table for database should be created"
@@ -546,6 +588,16 @@ variable "intra_route_table_tags" {
   default     = {}
 }
 
+##### CUSTOM #####
+
+variable "eks_route_table_tags" {
+  description = "Additional tags for the eks route tables"
+  type        = map(string)
+  default     = {}
+}
+
+##################
+
 variable "database_subnet_group_name" {
   description = "Name of database subnet group"
   type        = string
@@ -606,6 +658,17 @@ variable "intra_subnet_tags" {
   default     = {}
 }
 
+##### CUSTOM #####
+
+variable "eks_subnet_tags" {
+  description = "Additional tags for the eks subnets"
+  type        = map(string)
+  default     = {}
+}
+
+##################
+
+
 variable "public_acl_tags" {
   description = "Additional tags for the public subnets network ACL"
   type        = map(string)
@@ -629,6 +692,14 @@ variable "intra_acl_tags" {
   type        = map(string)
   default     = {}
 }
+
+##### CUSTOM #####
+variable "eks_acl_tags" {
+  description = "Additional tags for the eks subnets network ACL"
+  type        = map(string)
+  default     = {}
+}
+##################
 
 variable "database_acl_tags" {
   description = "Additional tags for the database subnets network ACL"
@@ -804,6 +875,15 @@ variable "intra_dedicated_network_acl" {
   type        = bool
   default     = false
 }
+
+##### CUSTOM #####
+variable "eks_dedicated_network_acl" {
+  description = "Whether to use dedicated network ACL (not default) and custom rules for eks subnets"
+  type        = bool
+  default     = false
+}
+
+##################
 
 variable "database_dedicated_network_acl" {
   description = "Whether to use dedicated network ACL (not default) and custom rules for database subnets"
@@ -998,6 +1078,42 @@ variable "intra_outbound_acl_rules" {
     },
   ]
 }
+
+##### CUSTOM #####
+
+variable "eks_inbound_acl_rules" {
+  description = "EKS subnets inbound network ACLs"
+  type        = list(map(string))
+
+  default = [
+    {
+      rule_number = 100
+      rule_action = "allow"
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      cidr_block  = "0.0.0.0/0"
+    },
+  ]
+}
+
+variable "eks_outbound_acl_rules" {
+  description = "EKS subnets outbound network ACLs"
+  type        = list(map(string))
+
+  default = [
+    {
+      rule_number = 100
+      rule_action = "allow"
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      cidr_block  = "0.0.0.0/0"
+    },
+  ]
+}
+
+##################
 
 variable "database_inbound_acl_rules" {
   description = "Database subnets inbound network ACL rules"
