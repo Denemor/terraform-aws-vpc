@@ -601,6 +601,18 @@ variable "private_subnet_tags_per_az" {
   default     = {}
 }
 
+variable "eks_worker_subnet_tags_per_az" {
+  description = "Additional tags for the worker subnets where the primary key is the AZ"
+  type        = map(map(string))
+  default     = {}
+}
+
+variable "eks_control_plane_subnet_tags_per_az" {
+  description = "Additional tags for the control plane subnets where the primary key is the AZ"
+  type        = map(map(string))
+  default     = {}
+}
+
 variable "outpost_subnet_tags" {
   description = "Additional tags for the outpost subnets"
   type        = map(string)

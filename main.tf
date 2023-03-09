@@ -9,6 +9,9 @@ locals {
   )
   nat_gateway_count = var.single_nat_gateway ? 1 : var.one_nat_gateway_per_az ? length(var.azs) : local.max_subnet_length
 
+  eks_worker_subnets_count        = length(var.eks_worker_subnets) 
+  eks_control_plane_subnets_count = length(var.eks_control_plane_subnets)
+
   # Use `local.vpc_id` to give a hint to Terraform that subnets should be deleted before secondary CIDR blocks can be free!
   vpc_id = try(aws_vpc_ipv4_cidr_block_association.this[0].vpc_id, aws_vpc.this[0].id, "")
 
@@ -26,7 +29,7 @@ resource "aws_vpc" "this" {
   ipv4_ipam_pool_id   = var.ipv4_ipam_pool_id
   ipv4_netmask_length = var.ipv4_netmask_length
 
-  assign_generated_ipv6_cidr_block = var.enable_ipv6 && !var.use_ipam_pool ? true : null
+  assign_generated_ipv6_cidr_block = var.enable_ipv6 && ! var.use_ipam_pool ? true : null
   ipv6_cidr_block                  = var.ipv6_cidr
   ipv6_ipam_pool_id                = var.ipv6_ipam_pool_id
   ipv6_netmask_length              = var.ipv6_netmask_length
@@ -359,25 +362,47 @@ resource "aws_route_table" "intra" {
 ################################################################################
 
 resource "aws_route_table" "eks_worker" {
-  count = local.create_vpc && length(var.eks_worker_subnets) > 0 ? 1 : 0
+
+  count = local.create_vpc && local.eks_worker_subnets_count > 0 ? local.eks_worker_subnets_count : 0
 
   vpc_id = local.vpc_id
 
   tags = merge(
-    { "Name" = "${var.name}-${var.eks_worker_subnet_suffix}" },
+    {
+      "Name" = var.single_nat_gateway ? "${var.name}-${var.eks_worker_subnet_suffix}" : format(
+        "${var.name}-${var.eks_worker_subnet_suffix}-%s",
+        element(var.azs, count.index),
+      )
+    },
     var.tags,
     var.eks_route_table_tags,
     var.eks_worker_route_table_tags,
   )
+
+  # count = local.create_vpc && length(var.eks_worker_subnets) > 0 ? 1 : 0
+
+  # vpc_id = local.vpc_id
+
+  # tags = merge(
+  #   { "Name" = "${var.name}-${var.eks_worker_subnet_suffix}" },
+  #   var.tags,
+  #   var.eks_route_table_tags,
+  #   var.eks_worker_route_table_tags,
+  # )
 }
 
 resource "aws_route_table" "eks_control_plane" {
-  count = local.create_vpc && length(var.eks_control_plane_subnets) > 0 ? 1 : 0
+  count = local.create_vpc && local.eks_control_plane_subnets_count > 0 ? local.eks_control_plane_subnets_count : 0
 
   vpc_id = local.vpc_id
 
   tags = merge(
-    { "Name" = "${var.name}-${var.eks_control_plane_subnet_suffix}" },
+    { 
+      "Name" = var.single_nat_gateway ? "${var.name}-${var.eks_control_plane_subnet_suffix}" : format(
+        "${var.name}-${var.eks_control_plane_subnet_suffix}-%s",
+        element(var.azs, count.index),
+      )
+    },
     var.tags,
     var.eks_route_table_tags,
     var.eks_control_plane_route_table_tags,
@@ -647,6 +672,7 @@ resource "aws_subnet" "eks_worker" {
     var.eks_subnet_tags,
     var.eks_worker_subnet_tags,
   )
+
 }
 
 resource "aws_subnet" "eks_control_plane" {
@@ -1353,17 +1379,25 @@ resource "aws_route_table_association" "intra" {
 }
 
 resource "aws_route_table_association" "eks_worker" {
+
   count = local.create_vpc && length(var.eks_worker_subnets) > 0 ? length(var.eks_worker_subnets) : 0
 
-  subnet_id      = element(aws_subnet.eks_worker[*].id, count.index)
-  route_table_id = element(aws_route_table.eks_worker[*].id, 0)
+  subnet_id = element(aws_subnet.eks_worker[*].id, count.index)
+  route_table_id = element(
+    aws_route_table.eks_worker[*].id,
+    var.single_nat_gateway ? 0 : count.index,
+  )
+
 }
 
 resource "aws_route_table_association" "eks_control_plane" {
   count = local.create_vpc && length(var.eks_control_plane_subnets) > 0 ? length(var.eks_control_plane_subnets) : 0
 
-  subnet_id      = element(aws_subnet.eks_control_plane[*].id, count.index)
-  route_table_id = element(aws_route_table.eks_control_plane[*].id, 0)
+  subnet_id = element(aws_subnet.eks_control_plane[*].id, count.index)
+  route_table_id = element(
+    aws_route_table.eks_control_plane[*].id,
+    var.single_nat_gateway ? 0 : count.index,
+  )
 }
 
 resource "aws_route_table_association" "public" {
