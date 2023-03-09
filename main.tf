@@ -1254,6 +1254,30 @@ resource "aws_route" "private_ipv6_egress" {
   egress_only_gateway_id      = element(aws_egress_only_internet_gateway.this[*].id, 0)
 }
 
+resource "aws_route" "eks_control_plane_nat_gateway" {
+  count = local.create_vpc && var.enable_nat_eks_control_plane && var.enable_nat_gateway ? local.nat_gateway_count : 0
+
+  route_table_id         = element(aws_route_table.eks_control_plane[*].id, count.index)
+  destination_cidr_block = var.nat_gateway_destination_cidr_block
+  nat_gateway_id         = element(aws_nat_gateway.this[*].id, count.index)
+
+  timeouts {
+    create = "5m"
+  }
+}
+
+resource "aws_route" "eks_worker_nat_gateway" {
+  count = local.create_vpc && var.enable_nat_eks_worker && var.enable_nat_gateway ? local.nat_gateway_count : 0
+
+  route_table_id         = element(aws_route_table.eks_worker[*].id, count.index)
+  destination_cidr_block = var.nat_gateway_destination_cidr_block
+  nat_gateway_id         = element(aws_nat_gateway.this[*].id, count.index)
+
+  timeouts {
+    create = "5m"
+  }
+}
+
 ################################################################################
 # Route table association
 ################################################################################

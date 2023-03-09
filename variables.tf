@@ -415,6 +415,18 @@ variable "enable_nat_gateway" {
   default     = false
 }
 
+variable "enable_nat_eks_control_plane" {
+  description = "Should be true if you want to provision NAT Gateways for each of your private networks"
+  type        = bool
+  default     = false
+}
+
+variable "enable_nat_eks_worker" {
+  description = "Should be true if you want to provision NAT Gateways for each of your private networks"
+  type        = bool
+  default     = false
+}
+
 variable "nat_gateway_destination_cidr_block" {
   description = "Used to pass a custom destination route for private NAT Gateway. If not specified, the default 0.0.0.0/0 is used as a destination route."
   type        = string
