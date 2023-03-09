@@ -462,6 +462,12 @@ variable "propagate_intra_route_tables_vgw" {
   default     = false
 }
 
+variable "propagate_eks_route_tables_vgw" {
+  description = "Should be true if you want route table propagation"
+  type        = bool
+  default     = false
+}
+
 variable "propagate_private_route_tables_vgw" {
   description = "Should be true if you want route table propagation"
   type        = bool
